@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Student Learning Dashboard</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f0f4f8;
+    }
+
+    .section { display: none; padding: 20px; }
+    .active { display: block; }
+
+    h2 { text-align: center; color: #2d3436; }
+
+    input, button {
+      display: block;
+      margin: 10px auto;
+      padding: 10px;
+      width: 250px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      background: #0984e3;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .topBar {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .profileCircle {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: gray;
+    }
+
+    .welcomeMessage {
+      font-size: 32px;
+      font-weight: bold;
+      color: #2d3436;
+    }
+
+    .subjectGrid {
+      margin-top: 20px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+    }
+
+    .subjectBox {
+      aspect-ratio: 4/3;
+      padding: 30px;
+      border-radius: 8px;
+      color: white;
+      font-size: 24px;
+      font-weight: bold;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .c { background: #6c5ce7; }
+    .java { background: #fd79a8; }
+    .python { background: #00b894; }
+    .js { background: #ffeaa7; color: #2d3436; }
+    .cpp { background: #fab1a0; color: #2d3436; }
+    .html { background: #d63031; }
+
+    .optionRow {
+      display: flex;
+      gap: 30px;
+      margin-top: 40px;
+      justify-content: center;
+    }
+
+    .optionBox {
+      flex: 1;
+      aspect-ratio: 4/3;
+      background: #74b9ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      font-weight: bold;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      max-width: 200px;
+    }
+
+    .competeLayout {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 15px;
+      margin-top: 30px;
+    }
+
+    .flashCards, .quizArea, .scoreBoard {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      height: 300px;
+      overflow-y: auto;
+    }
+
+    .flashCard {
+      background: #dfe6e9;
+      padding: 10px;
+      border-radius: 6px;
+      margin-bottom: 8px;
+    }
+
+    .quizQuestion { margin-bottom: 20px; }
+    .quizQuestion button {
+      margin: 4px 5px;
+      padding: 6px 10px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      cursor: pointer;
+    }
+
+    .correct { color: green; font-weight: bold; }
+    .wrong { color: red; font-weight: bold; }
+    .timestamp { font-size: 12px; color: #636e72; margin-top: 5px; }
+
+    .learnConcepts {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Login Page -->
+<div class="section active" id="loginPage">
+  <h2>Login to Student Learning Dashboard</h2>
+  <input type="text" id="username" placeholder="Username" />
+  <input type="password" id="password" placeholder="Password" />
+  <input type="password" id="confirmPassword" placeholder="Confirm Password" />
+  <button onclick="login()">Login</button>
+</div>
+
+<!-- Dashboard -->
+<div class="section" id="dashboardPage">
+  <div class="topBar">
+    <div class="profileCircle"></div>
+    <div class="welcomeMessage" id="welcomeText">Hello, User</div>
+  </div>
+
+  <div class="subjectGrid">
+    <div class="subjectBox c" onclick="selectSubject('C')">C</div>
+    <div class="subjectBox java" onclick="selectSubject('Java')">Java</div>
+    <div class="subjectBox python" onclick="selectSubject('Python')">Python</div>
+    <div class="subjectBox js" onclick="selectSubject('JS')">JS</div>
+    <div class="subjectBox cpp" onclick="selectSubject('C++')">C++</div>
+    <div class="subjectBox html" onclick="selectSubject('HTML')">HTML</div>
+  </div>
+</div>
+
+<!-- Subject Options -->
+<div class="section" id="subjectPage">
+  <h2 id="subjectTitle">Subject Dashboard</h2>
+  <div class="optionRow">
+    <div class="optionBox" onclick="goToLearn()">LEARN</div>
+    <div class="optionBox" onclick="goToCompete()">COMPETE</div>
+  </div>
+</div>
+
+<!-- Learn Page -->
+<div class="section" id="learnPage">
+  <h2 id="learnHeader">Learning Module</h2>
+  <div class="learnConcepts" id="learnContent"></div>
+</div>
+
+<!-- Compete Page -->
+<div class="section" id="competePage">
+  <h2 id="quizHeader">Compete Module</h2>
+  <div class="competeLayout">
+    <div class="flashCards" id="flashCardArea">📚 Flash Cards Area</div>
+    <div class="quizArea" id="quizArea">✅ Quiz Section</div>
+    <div class="scoreBoard" id="scoreBoard">🏁 Final Score: 0%</div>
+  </div>
+</div>
+
+<script>
+  const learnDescriptions = {
+    "C": "C is a general-purpose programming language that is extremely popular, simple, and flexible to use.",
+    "Java": "Java is a high-level, class-based, object-oriented programming language that is designed to have as few implementation dependencies as possible.",
+    "Python": "Python is an interpreted, high-level, general-purpose programming language with dynamic semantics.",
+    "JS": "JavaScript is the programming language of the Web. It can update and change both HTML and CSS.",
+    "C++": "C++ is a general-purpose programming language created as an extension of the C programming language.",
+    "HTML": "HTML stands for Hyper Text Markup Language. It is the standard markup language for creating Web pages."
+  };
+
+  const flashCardSamples = {
+    "C": ["int main()", "printf()", "Pointers"],
+    "Java": ["class & objects", "JVM", "Inheritance"],
+    "Python": ["def keyword", "Indentation", "Lists"],
+    "JS": ["DOM", "var/let/const", "Functions"],
+    "C++": ["cout & cin", "OOP Concepts", "Templates"],
+    "HTML": ["<div>", "<head>", "Semantic Tags"]
+  };
+
+  const quizQuestions = {
+    "C": [
+      { q: "Which keyword is used to define a function in C?", options: ["define", "function", "void", "int"], answer: 2 },
+      { q: "Which symbol is used to end a statement in C?", options: [".", ";", ":", ","], answer: 1 }
+    ],
+    "Java": [
+      { q: "What does JVM stand for?", options: ["Java Virtual Machine", "Java Vendor Model", "Just Verified Method", "None"], answer: 0 },
+      { q: "Which keyword is used to inherit a class?", options: ["inherits", "extends", "implement", "include"], answer: 1 }
+    ],
+    "Python": [
+      { q: "Which symbol is used for comments?", options: ["//", "#", "/*", "--"], answer: 1 },
+      { q: "How do you define a function in Python?", options: ["function", "func", "def", "define"], answer: 2 }
+    ],
+    "JS": [
+      { q: "Which of the following is not a JavaScript data type?", options: ["String", "Boolean", "Float", "Undefined"], answer: 2 },
+      { q: "What does DOM stand for?", options: ["Document Object Model", "Display Object Management", "Digital Ordinance Model", "Desktop Oriented Mode"], answer: 0 }
+    ],
+    "C++": [
+      { q: "Which operator is used to resolve the scope in C++?", options: ["::", ":", ".", "->"], answer: 0 },
+      { q: "C++ supports which type of programming?", options: ["Procedural", "Object Oriented", "Functional", "All of the above"], answer: 3 }
+    ],
+    "HTML": [
+      { q: "HTML stands for?", options: ["HyperText Markup Language", "HyperText Makeup Language", "HighText Markup Language", "None"], answer: 0 },
+      { q: "Which tag is used for inserting an image?", options: ["<image>", "<img>", "<src>", "<pic>"], answer: 1 }
+    ]
+  };
+
+  let currentSubject = "";
+  let score = 0;
+
+  function show(sectionId) {
+    document.querySelectorAll(".section").forEach(sec => sec.classList.remove("active"));
+    document.getElementById(sectionId).classList.add("active");
+  }
+
+  function login() {
+    const name = document.getElementById("username").value;
+    const pass = document.getElementById("password").value;
+    const confirm = document.getElementById("confirmPassword").value;
+    if (!name || !pass || !confirm) return alert("Please fill all fields.");
+    if (pass !== confirm) return alert("Passwords do not match.");
+    document.getElementById("welcomeText").innerText = "Hello, " + name;
+    show("dashboardPage");
+  }
+
+  function selectSubject(subject) {
+    currentSubject = subject;
+    document.getElementById("subjectTitle").innerText = subject + " Dashboard";
+    show("subjectPage");
+  }
+
+  function goToLearn() {
+    document.getElementById("learnHeader").innerText = "Learn " + currentSubject;
+    document.getElementById("learnContent").innerHTML = `<p>${learnDescriptions[currentSubject]}</p>`;
+    show("learnPage");
+  }
+
+  function goToCompete() {
+    score = 0;
+    document.getElementById("quizHeader").innerText = "Compete in " + currentSubject;
+    const flashArea = document.getElementById("flashCardArea");
+    flashArea.innerHTML = "<h3>📚 Flash Cards</h3>";
+    flashCardSamples[currentSubject].forEach(card => {
+      const div = document.createElement("div");
+      div.className = "flashCard";
+      div.innerText = card;
+      flashArea.appendChild(div);
+    });
+
+    const quizArea = document.getElementById("quizArea");
+    quizArea.innerHTML = "<h3>✅ Quiz Section</h3>";
+    const questions = quizQuestions[currentSubject];
+
+    questions.forEach((qObj, i) => {
+      const container = document.createElement("div");
+      container.className = "quizQuestion";
+
+      const questionText = document.createElement("p");
+      questionText.innerText = `${i + 1}. ${qObj.q}`;
+      container.appendChild(questionText);
+
+      qObj.options.forEach((opt, idx) => {
+        const btn = document.createElement("button");
+        btn.innerText = opt;
+        btn.onclick = () => {
+          if (idx === qObj.answer) {
+            btn.style.backgroundColor = "#55efc4";
+            score++;
+          } else {
+            btn.style.backgroundColor = "#fab1a0";
+          }
+          updateScore(questions.length);
+          // Disable all buttons
+          container.querySelectorAll("button").forEach(b => b.disabled = true);
+        };
+        container.appendChild(btn);
+      });
+
+      const time = document.createElement("div");
+      time.className = "timestamp";
+      time.innerText = "Asked at: " + new Date().toLocaleTimeString();
+      container.appendChild(time);
+      quizArea.appendChild(container);
+    });
+
+    updateScore(questions.length);
+    show("competePage");
+  }
+
+  function updateScore(total) {
+    document.getElementById("scoreBoard").innerText = `🏁 Final Score: ${Math.round((score / total) * 100)}%`;
+  }
+</script>
+</body>
+</html>
